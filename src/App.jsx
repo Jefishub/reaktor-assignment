@@ -9,8 +9,9 @@ const CORS_URL = "https://cors-anywhere.herokuapp.com/" //TO fix CORS error
 const CATEGORY_API_URL = CORS_URL + "https://bad-api-assignment.reaktor.com/v2/products/"
 const MANUFACTURER_API_URL = CORS_URL + "https://bad-api-assignment.reaktor.com/v2/availability/" //ADD manufacturer name
 
-/* const BASE_URL = "http://localhost:5000/api" //TO fix CORS error
-const CATEGORY_API_URL = BASE_URL + "/products/"
+/* PROXY URLS */
+/* const BASE_URL = "http://localhost:5000/api" 
+const CATEGORY_API_URL = BASE_URL + "/products/" //ADD product name
 const MANUFACTURER_API_URL = BASE_URL + "/availability/" //ADD manufacturer name */
 
 function App() {
