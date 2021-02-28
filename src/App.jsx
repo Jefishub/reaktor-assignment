@@ -29,7 +29,7 @@ function App() {
           <h1>Load data</h1>
         </button>
         <p>Please request access to cors proxy when starting to try the application</p>
-        <a href="/" target="_blank">Cors Proxy Request</a>
+        <a href="http://cors-anywhere.herokuapp.com/corsdemo" target="_blank">Cors Proxy Request</a>
       </div>
     </div>)
 
