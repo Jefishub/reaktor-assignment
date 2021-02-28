@@ -110,7 +110,7 @@ function AppMock() {
         <a onClick={() => setPageState(facemasks)}>FACEMASKS</a>
         <a onClick={() => setPageState(beanies)}>BEANIES</a>
       </div>
-      <div>          
+      <div className="main-page">          
         { pageState }
       </div>
     </div>

@@ -3,37 +3,25 @@ import {Promise} from "bluebird";
 
 import ProductBox from './ProductBox.jsx'
 
-import {ABIPLOS} from './mock/manufacturers/abiplos.js'
-import {HENNEX} from './mock/manufacturers/hennex.js'
-import {JUURAN} from './mock/manufacturers/juuran.js'
-import {LAION} from './mock/manufacturers/laion.js'
-import {NIKSLEH} from './mock/manufacturers/niksleh.js'
-import {OKKAU} from './mock/manufacturers/okkau.js'
-import {GLOVES} from './mock/products/gloves.js'
-import {FACEMASKS} from './mock/products/facemasks.js'
-import {BEANIES} from './mock/products/beanies.js'
-
 import "./styles.css"
 
-/* const CORS_URL = "https://cors-anywhere.herokuapp.com/" //TO fix CORS error
+const CORS_URL = "https://cors-anywhere.herokuapp.com/" //TO fix CORS error
 const CATEGORY_API_URL = CORS_URL + "https://bad-api-assignment.reaktor.com/v2/products/"
-const MANUFACTURER_API_URL = CORS_URL + "https://bad-api-assignment.reaktor.com/v2/availability/" //ADD manufacturer name */
+const MANUFACTURER_API_URL = CORS_URL + "https://bad-api-assignment.reaktor.com/v2/availability/" //ADD manufacturer name
 
-const BASE_URL = "http://localhost:5000/api" //TO fix CORS error
+/* const BASE_URL = "http://localhost:5000/api" //TO fix CORS error
 const CATEGORY_API_URL = BASE_URL + "/products/"
-const MANUFACTURER_API_URL = BASE_URL + "/availability/" //ADD manufacturer name
-
-const MANUDICT = {"abiplos":ABIPLOS.response,"hennex":HENNEX.response,"juuran":JUURAN.response,"laion":LAION.response,"niksleh":NIKSLEH.response,"okkau":OKKAU.response}
+const MANUFACTURER_API_URL = BASE_URL + "/availability/" //ADD manufacturer name */
 
 function App() {
 
   /* Product data */
-  const [gloves, setGloves] = useState('') // 
-  const [facemasks, setFacemasks] = useState('') // 
-  const [beanies, setBeanies] = useState('') // 
+  const [gloves, setGloves] = useState(<div><h3>**Gloves data not loaded**</h3></div>) // 
+  const [facemasks, setFacemasks] = useState(<div><h3>**Facemasks data not loaded**</h3></div>) // 
+  const [beanies, setBeanies] = useState(<div><h3>**Beanies data not loaded**</h3></div>) // 
 
   /* Functionality variables */
-  const [productData, setProductData] = useState('')
+  const [pageState, setPageState] = useState(<div><div className="load-button"><button onClick={() => loadData()}><h1>Load data</h1></button></div></div>)
 
   //Filtering out distinct manufacturers
   function getManufacturers(product_list){
@@ -43,12 +31,13 @@ function App() {
     return distinctManufacturers;
   }
 
+  // Adding availability information into product data
   async function addAvailabilityToProduct(productData, availabilityData) {
     console.log("*****ADD AVAILABILITY*******")
     console.log(productData)
     console.log(availabilityData)
     productData.forEach((item) => {
-      if (availabilityData[item.manufacturer] === []) {
+      if (availabilityData[item.manufacturer] === "[]") {
         item["availability"] = "DATA NOT FOUND";
       }
       else {
@@ -66,9 +55,10 @@ function App() {
     })
   }
 
+  //Fetching manufacturer data and returning a dictionary {manufacturer1:availabilitydata,manufacturer2:availabilitydata...}
   async function getManufacturerData(manufacturer_list) {
     return await Promise.map(manufacturer_list, async (item) => {
-      return await fetch(MANUFACTURER_API_URL + item)
+      return await fetch(MANUFACTURER_API_URL + item, {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}})
       .then(response => response.json())
       .then(responseJson => responseJson.response)
     })
@@ -78,12 +68,13 @@ function App() {
       return manudict;
     })
   }
+
   /* , {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}} */
   function getData() {
     Promise.all([
-      fetch(CATEGORY_API_URL + "gloves"),
-      fetch(CATEGORY_API_URL + "facemasks"),
-      fetch(CATEGORY_API_URL + "beanies")]
+      fetch(CATEGORY_API_URL + "gloves", {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}}),
+      fetch(CATEGORY_API_URL + "facemasks", {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}}),
+      fetch(CATEGORY_API_URL + "beanies", {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}})]
     )
     .then(async (responses) => await Promise.all(responses.map(response => response.json())))
     .then((productsJson) => {
@@ -103,34 +94,37 @@ function App() {
       console.log(manuData)
       console.log(productJson)
       productJson.forEach(async product => await addAvailabilityToProduct(product,manuData));
-      setGloves(productJson[0]);
-      setFacemasks(productJson[1]);
-      setBeanies(productJson[2]);
-      setProductData("***PRODUCT DATA LOADED***");
+      setGloves(<ProductBox product_data={productJson[0]}/>);
+      setFacemasks(<ProductBox product_data={productJson[1]}/>);
+      setBeanies(<ProductBox product_data={productJson[2]}/>);
+      setPageState(<div><h3>***PRODUCT DATA LOADED***</h3></div>);
     })
     .catch(error => console.log(error))
   }
 
   function loadData() {
-      setProductData("***Loading Data***");
+    setPageState(<div><h1>***Loading Data***</h1></div>);
       getData();
   }
 
-  function showProduct(product) {
-      setProductData(<ProductBox product_data={product}/>)
+  function mainPage() {
+    setPageState(<div className="load-button"><button onClick={() => loadData()}><h1>Reload data</h1></button></div>)
   }
 
-  useEffect(() => loadData()
-  ,[])
-
   return (
-      <div>
-          <button onClick={() => loadData()}>Get data</button>
-          <button onClick={() => showProduct(gloves)}>GLOVES</button>
-          <button onClick={() => showProduct(facemasks)}>FACEMASKS</button>
-          <button onClick={() => showProduct(beanies)}>BEANIES</button>
-          { productData }
+    <div>
+      <div className="topnav">
+        <a onClick={() => mainPage()}>Main page</a>
+        <a onClick={() => setPageState(gloves)}>GLOVES</a>
+        <a onClick={() => setPageState(facemasks)}>FACEMASKS</a>
+        <a onClick={() => setPageState(beanies)}>BEANIES</a>
       </div>
+      <div className="main-page"> 
+        <div className="page-state">         
+          { pageState }
+        </div>
+      </div>
+    </div>
   );
 }
 
