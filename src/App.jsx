@@ -21,7 +21,16 @@ function App() {
   const [beanies, setBeanies] = useState(<div><h3>**Beanies data not loaded**</h3></div>) // 
 
   /* Functionality variables */
-  const [pageState, setPageState] = useState(<div><div className="load-button"><button onClick={() => loadData()}><h1>Load data</h1></button></div></div>)
+  const [pageState, setPageState] = useState(
+    <div>
+      <div className="load-button">
+        <button onClick={() => loadData()}>
+          <h1>Load data</h1>
+        </button>
+        <p>Please request access to cors proxy when starting to try the application</p>
+        <a href="/" target="_blank">Cors Proxy Request</a>
+      </div>
+    </div>)
 
   //Filtering out distinct manufacturers
   function getManufacturers(product_list){
@@ -76,7 +85,7 @@ function App() {
       fetch(CATEGORY_API_URL + "facemasks", {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}}),
       fetch(CATEGORY_API_URL + "beanies", {headers:{"Access-Control-Allow-Origin": "http://localhost:3000/"}})]
     )
-    .then(async (responses) => await Promise.all(responses.map(response => response.json())))
+    .then((responses) => Promise.all(responses.map(response => response.json())))
     .then((productsJson) => {
       console.log("1")
       console.log(productsJson);
@@ -86,20 +95,22 @@ function App() {
     .then(async ([manufacturers,productJson]) => {
       console.log("2")
       console.log(manufacturers)
-      const manuData = await getManufacturerData(manufacturers);
-      return await Promise.all([manuData, productJson])
+      const manuData = getManufacturerData(manufacturers);
+      return Promise.all([manuData, productJson])
     })
     .then(([manuData, productJson]) => {
       console.log("3")
       console.log(manuData)
       console.log(productJson)
-      productJson.forEach(async product => await addAvailabilityToProduct(product,manuData));
+      productJson.forEach(product => addAvailabilityToProduct(product,manuData));
       setGloves(<ProductBox product_data={productJson[0]}/>);
       setFacemasks(<ProductBox product_data={productJson[1]}/>);
       setBeanies(<ProductBox product_data={productJson[2]}/>);
-      setPageState(<div><h3>***PRODUCT DATA LOADED***</h3></div>);
+      setPageState(<div><h3>*** PRODUCT DATA LOADED ***</h3></div>);
     })
-    .catch(error => console.log(error))
+    .catch(error => {
+      setPageState(<div><h3>*** There was an error when loading data ***</h3></div>);
+      console.log(error);})
   }
 
   function loadData() {
