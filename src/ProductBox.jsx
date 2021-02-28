@@ -1,12 +1,11 @@
 import React from 'react';
 import Product from './Product';
 
-const ProductBox = ({product_data, availability_data}) => {
-
+const ProductBox = ({product_data}) => {
+    if (product_data !== "") {
     return (
         <div>
             {product_data.map((product, i) => {
-                const availability = availability_data[product];
                 return (
                     <Product
                     key={i}
@@ -16,12 +15,16 @@ const ProductBox = ({product_data, availability_data}) => {
                     color={product.color}
                     price={product.price}
                     manufacturer={product.manufacturer}
-                    availability={availability}
+                    availability={product.availability}
                     />
                 )
             })}
         </div>
     )
+        }
+    else {
+        return <div><p>Something went wrong</p></div>
+    }
 
 }
 
